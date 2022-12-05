@@ -5,9 +5,11 @@ from time import sleep
 
 
 class Stats:
-    bulls = 0
-    cows = 0
-    attempts = 0
+
+    def __init__(self, attempts=0):
+        self.bulls = 0
+        self.cows = 0
+        self.attempts = attempts
 
     def export_score(self):
         with open("highscore.txt", "a") as file:
@@ -17,69 +19,85 @@ class Stats:
 
 
 class Engine:
-    stats = Stats()
-    words_db = Dictionary()
-    validator = Validator()
 
-    difficulties = {"Easy": 1,
-                    "Medium": 2,
-                    "Hardcore": 3}
-    difficulty = difficulties["Easy"]
-
-    default_attempts = 3
-    attempts = default_attempts
+    def __init__(self):
+        self.default_attempts = 3
+        self.stats = Stats(self.default_attempts)
+        self.words_db = Dictionary()
+        self.validator = Validator()
+        self.difficulty = 1
 
     def change_attempts(self, num_of_attempts):
         if num_of_attempts <= 0:
-            self.attempts = 1
+            self.stats.attempts = 1
             self.default_attempts = 1
             print("Attempts can't be lower than 1.\n"
                   "Changed attempts to 1.")
         else:
-            self.attempts = num_of_attempts
             self.default_attempts = num_of_attempts
+            self.stats.attempts = self.default_attempts
 
-    def change_difficulty(self, difficulty):
-        if difficulty < 1 or difficulty > 3:
-            print("Cannot change difficulty.")
+    def change_difficulty(self, diff):
+        if diff < 1 or diff > 3:
+           print("Cannot change difficulty.")
         else:
-            self.difficulty = difficulty
+            self.difficulty = diff
+
+    @staticmethod
+    def check_user_word(stats, user_guess, word):
+        for (user_char, word_char) in zip(user_guess, word):
+            if user_char in word:
+                if user_char == word_char:
+                    stats.bulls += 1
+                else:
+                    stats.cows += 1
+        return stats.bulls, stats.cows
+
+    @staticmethod
+    def check_guess_conditions(stats, word):
+        if stats.bulls == len(word):
+            return True, stats.attempts
+        else:
+            stats.attempts -= 1
+            return False, stats.attempts
 
     def start_game(self):
+        print(self.difficulty)
         print("Computer is choosing word...")
         sleep(1)
 
-        word = self.words_db.return_word(difficulty=self.difficulty)
-        self.stats.bulls = 0
-        self.stats.cows = 0
-
+        word = self.words_db.return_word(self.difficulty)
         print(f"Computer chose a word. Word length = {len(word)}")
-        while self.attempts > 0:
+        while self.stats.attempts > 0:
+            self.stats.bulls = 0
+            self.stats.cows = 0
             user_guess = pyip.inputStr("Have a guess:")
             if not self.validator.check_word(user_guess):
                 print("Your word is not isogram !")
             else:
-                for (user_char, word_char) in zip(user_guess, word):
-                    if user_char in word:
-                        if user_char == word_char:
-                            self.stats.bulls += 1
-                        else:
-                            self.stats.cows += 1
-                if self.stats.bulls == len(word):
+                Engine.check_user_word(self.stats, user_guess, word)
+
+                guess_value, self.stats.attempts = Engine.check_guess_conditions(self.stats, word)
+                if guess_value:
                     print(f"You guessed right !\n"
-                          f"On attempt {self.attempts}.")
-                    self.stats.attempts = self.attempts
+                          f"On attempt {self.stats.attempts}.")
+                    sleep(1)
+                    print_menu()
                     break
                 else:
-                    self.attempts -= 1
-                    print(f"Bad guess !\n"
-                          f"Bulls[{self.stats.bulls}] and Cows[{self.stats.cows}]\n"
-                          f"Attempts[{self.attempts}]")
-        print("! YOU LOST !\n"
-              f"Bulls[{self.stats.bulls}] and Cows[{self.stats.cows}]\n"
-              f"Attempts[{self.attempts}]\n")
-        self.attempts = self.default_attempts
-        print_menu()
+                    if self.stats.attempts == 0:
+                        print("! YOU LOST !\n"
+                            f"Bulls[{self.stats.bulls}] and Cows[{self.stats.cows}]\n"
+                            f"Attempts[{self.stats.attempts}]\n"
+                            f"The word:{word}\n")
+                        self.stats.attempts = self.default_attempts
+                        sleep(1)
+                        print_menu()
+                        break
+                    else:
+                        print(f"Bad guess !\n"
+                              f"Bulls[{self.stats.bulls}] and Cows[{self.stats.cows}]\n"
+                              f"Attempts[{self.stats.attempts}]")
 
 
 def print_menu():
@@ -90,18 +108,16 @@ def print_menu():
           "3 - Change the number of attempts\n"
           "4 - Change difficulty\n"
           "5 - Export score\n"
-          "6 - Exit")
+          "6 - Exit\n")
 
 
 def print_rotg():
     print("Bulls and Cows is a 2 player game.\n"
-          "One player thinks of a word, while the other player tries to guess it.")
+          "One player thinks of a word, while the other player tries to guess it.\n")
 
 
-engine = Engine()
+def handle_menu_input(engine):
 
-
-def handle_menu_input():
     user_input = pyip.inputNum(prompt=">?")
     while user_input not in range(1, 7):
         print(f"Bad Input:({user_input})")
@@ -115,6 +131,9 @@ def handle_menu_input():
             attempts = pyip.inputNum(prompt="Attempts:")
             engine.change_attempts(attempts)
         elif user_input == 4:
+            print("1.Easy\n"
+                  "2.Medium\n"
+                  "3.Hardcore\n")
             difficulty = pyip.inputNum(prompt="Difficulty:")
             engine.change_difficulty(difficulty)
         elif user_input == 5:

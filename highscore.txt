@@ -1,1 +1,9 @@
 Game day:2022-11-19 20:10:37.118153 , bulls:0 , cows:0
+Game day:2022-12-05 20:18:18.601377 , bulls:0 , cows:0 , attempts:0
+Game day:2022-12-05 20:18:33.638237 , bulls:0 , cows:0 , attempts:0
+Game day:2022-12-05 20:23:10.995108 , bulls:1 , cows:1 , attempts:0
+Game day:2022-12-05 20:44:16.610356 , bulls:0 , cows:0 , attempts:0
+Game day:2022-12-05 20:48:12.616995 , bulls:0 , cows:0 , attempts:0
+Game day:2022-12-05 20:54:16.422595 , bulls:0 , cows:0 , attempts:12
+Game day:2022-12-05 22:10:36.721146 , bulls:0 , cows:0 , attempts:2
+Game day:2022-12-05 22:13:57.718995 , bulls:3 , cows:0 , attempts:3

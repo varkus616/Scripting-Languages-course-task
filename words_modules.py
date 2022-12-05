@@ -19,6 +19,7 @@ class Dictionary:
             exit(1)
 
     def return_word(self, difficulty=1) -> str:
+        print(f"{difficulty}")
         if difficulty == 1:#easy
             easy_data = [word for word in self.data if len(word) <= 4]
             return random.choice(easy_data)
